@@ -36,14 +36,14 @@
 #define _CRT_NONSTDC_NO_WARNINGS
 #include <Windows.h>
 
-
 #include <conio.h>
+#include <io.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static const char VERSION[] = "1.0";
+static const char VERSION[] = "1.1";
 static const char AUTHOR[] = "Brandon Herzog";
 
 static bool display_required;
@@ -54,7 +54,7 @@ static void help()
 		"    --display    keep display active\n"
 		"    --version    show version\n"
 		"    --help       show help\n"
-		"",	stdout);
+		"", stdout);
 	exit(EXIT_SUCCESS);
 }
 
@@ -100,9 +100,16 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
-	fputs("Wide awake. Press any key to exit...\n", stdout);
-	fflush(stdout);
-	getch();
+	if (isatty(fileno(stdin))) {
+		fputs("Wide awake. Press any key to exit...\n", stdout);
+		fflush(stdout);
+		getch();
+	} else {
+		int ch;
+		while ((ch = fgetc(stdin)) != EOF) {
+			fputc(ch, stdout);
+		}
+	}
 
 	exit(EXIT_SUCCESS);
 }
